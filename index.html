@@ -510,6 +510,40 @@
   border: 2px solid #ff3b3b;
   background: rgba(255,59,59,0.08);
 }
+    .side-panel-level3 {
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+.side-panel-level3 .terminal {
+  padding: 16px 20px !important;
+  font-size: clamp(16px, 1.25vw, 24px) !important;
+}
+
+.side-panel-level3 .input {
+  padding: 12px 16px;
+  font-size: clamp(20px, 1.7vw, 34px);
+}
+
+.side-panel-level3 .btn.primary {
+  padding: 10px 16px;
+  min-height: 64px;
+  font-size: clamp(18px, 1.4vw, 28px);
+}
+
+.side-panel-level3 .feedback {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  padding: 18px 20px;
+  font-size: clamp(15px, 1vw, 20px);
+  overflow-y: auto;
+}
+
+.side-panel-level3 .feedback .result {
+  font-size: clamp(22px, 1.8vw, 36px);
+}
+    
   </style>
 </head>
 <body>
@@ -541,7 +575,7 @@
         <span class="dot" id="dot2"></span>
         <span class="dot" id="dot3"></span>
       </div>
-      <div>Lee el código · Detecta la lógica · Consigue acceso ROOT · Manuel Valencia v9 </div>
+      <div>Lee el código · Detecta la lógica · Consigue acceso ROOT · Manuel Valencia v10 </div>
     </footer>
   </div>
 
@@ -789,7 +823,7 @@ print(acceso)`;
             <p>Encuentra el usuario que consigue que el sistema imprima True.</p>
             <div class="terminal code-scroll"><pre class="code">${level3Code}</pre></div>
           </div>
-          <aside class="side-panel">
+          <aside class="side-panel side-panel-level3">
             <div class="terminal" style="font-size: clamp(20px, 1.8vw, 34px);">&gt; Terminal de acceso\n&gt; Introduce usuario:</div>
             <input id="userInput" class="input" type="text" autocomplete="off" placeholder="usuario" onkeydown="if(event.key==='Enter') answerLevel3()" />
             <button class="btn primary" onclick="answerLevel3()">ACCEDER</button>
