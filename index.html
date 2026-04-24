@@ -298,25 +298,41 @@
       box-shadow: 0 0 26px rgba(57, 255, 20, 0.25), inset 0 0 22px rgba(57, 255, 20, 0.08);
     }
 
-    .feedback {
-      border-radius: 22px;
-      padding: clamp(16px, 1.8vw, 28px);
-      border: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.45);
-      display: none;
-      font-size: clamp(18px, 1.55vw, 28px);
-      line-height: 1.35;
-    }
+.feedback {
+  border-radius: 22px;
+  padding: clamp(14px, 1.4vw, 22px);
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  font-size: clamp(15px, 1.15vw, 22px);
+  line-height: 1.28;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+
+.feedback::-webkit-scrollbar {
+  width: 10px;
+}
+
+.feedback::-webkit-scrollbar-track {
+  background: rgba(57, 255, 20, 0.08);
+  border-radius: 999px;
+}
+
+.feedback::-webkit-scrollbar-thumb {
+  background: rgba(57, 255, 20, 0.45);
+  border-radius: 999px;
+}
 
     .feedback.show {
       display: block;
     }
 
-    .feedback .result {
-      font-size: clamp(28px, 3vw, 62px);
-      font-weight: 900;
-      margin-bottom: 12px;
-    }
+.feedback .result {
+  font-size: clamp(24px, 2.2vw, 44px);
+  font-weight: 900;
+  margin-bottom: 10px;
+}
 
     .feedback.correct .result {
       color: var(--green);
@@ -741,9 +757,9 @@ print(acceso)`;
       if (correct) state.score++;
 
       const explanation = correct
-        ? `trinity es el usuario que termina con acceso = True. Está activo, tiene token = True y nivel = 7. Aunque primero el acceso pasa a False porque nivel < 9, después vuelve a True porque cumple token == True and nivel >= 7. Además, no se llama admin y su rol no está bloqueado.`
-        : `Ese usuario no termina con acceso = True. La solución correcta es trinity: está activo, tiene token = True y nivel = 7, por lo que supera la condición token == True and nivel >= 7 sin quedar bloqueado por las reglas finales.`;
-
+  ? `trinity termina con acceso = True: está activo, tiene token y nivel 7. Aunque nivel < 9 lo pone en False, después token == True and nivel >= 7 lo cambia a True.`
+  : `No termina con acceso = True. La solución es trinity: tiene token, nivel 7 y no queda bloqueado por las reglas finales.`;
+      
       showFeedback(correct, explanation, "Ver resultado");
       updateHud();
     }
