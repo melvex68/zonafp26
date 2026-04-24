@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hackea el sistema | Reto FP</title>
+  <style>
+    :root {
+      --bg: #020403;
+      --panel: rgba(4, 16, 10, 0.92);
+      --panel-2: rgba(5, 24, 13, 0.92);
+      --green: #39ff14;
+      --green-soft: #8dff7a;
+      --green-dark: #0f6b20;
+      --red: #ff3b3b;
+      --yellow: #ffd84d;
+      --text: #e7ffe3;
+      --muted: #91b58e;
+      --border: rgba(57, 255, 20, 0.35);
+      --shadow: 0 0 28px rgba(57, 255, 20, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(57, 255, 20, 0.09), transparent 25%),
+        radial-gradient(circle at 80% 10%, rgba(57, 255, 20, 0.07), transparent 20%),
+        linear-gradient(135deg, #000 0%, #031307 55%, #000 100%);
+      color: var(--text);
+      font-family: Consolas, Monaco, "Courier New", monospace;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 10;
+      mix-blend-mode: screen;
+    }
+
+    body::after {
+      content: "01001000 01000001 01000011 01001011 00100000 01000110 01010000";
+      position: fixed;
+      bottom: 16px;
+      left: 32px;
+      right: 32px;
+      color: rgba(57, 255, 20, 0.08);
+      font-size: clamp(18px, 2vw, 34px);
+      letter-spacing: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .app {
+      height: 100vh;
+      padding: clamp(18px, 2vw, 34px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px solid var(--border);
+      background: rgba(1, 10, 5, 0.86);
+      box-shadow: var(--shadow);
+      border-radius: 22px;
+      padding: 16px 22px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand .title {
+      font-size: clamp(28px, 4vw, 64px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: var(--green);
+      text-shadow: 0 0 18px rgba(57, 255, 20, 0.55);
+      text-transform: uppercase;
+    }
+
+    .brand .subtitle {
+      color: var(--muted);
+      font-size: clamp(14px, 1.2vw, 22px);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      color: var(--green-soft);
+      background: rgba(57, 255, 20, 0.08);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: clamp(14px, 1.2vw, 21px);
+      white-space: nowrap;
+    }
+
+    .main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .screen {
+      min-height: 0;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: var(--shadow), inset 0 0 40px rgba(57, 255, 20, 0.04);
+      border-radius: 28px;
+      padding: clamp(18px, 2.3vw, 36px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      pointer-events: none;
+      background: linear-gradient(120deg, rgba(57,255,20,0.1), transparent 18%, transparent 78%, rgba(57,255,20,0.08));
+    }
+
+    .level-layout {
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .challenge {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 26px;
+      min-height: 0;
+    }
+
+    .challenge h1 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 78px);
+      color: var(--green);
+      text-shadow: 0 0 18px rgba(57, 255, 20, 0.48);
+    }
+
+    .challenge p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(18px, 1.7vw, 30px);
+      line-height: 1.35;
+    }
+
+    .terminal {
+      border: 1px solid var(--border);
+      background: #010604;
+      border-radius: 22px;
+      padding: clamp(18px, 2vw, 32px);
+      font-size: clamp(22px, 2.1vw, 44px);
+      line-height: 1.35;
+      color: var(--green-soft);
+      box-shadow: inset 0 0 28px rgba(57, 255, 20, 0.08);
+      white-space: pre-wrap;
+    }
+
+    .code {
+      font-size: clamp(14px, 1.1vw, 24px);
+      line-height: 1.45;
+      color: #dfffd9;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .code-scroll {
+      height: 100%;
+      overflow-y: auto;
+      padding-right: 12px;
+    }
+
+    .code-scroll::-webkit-scrollbar {
+      width: 14px;
+    }
+
+    .code-scroll::-webkit-scrollbar-track {
+      background: rgba(57, 255, 20, 0.08);
+      border-radius: 999px;
+    }
+
+    .code-scroll::-webkit-scrollbar-thumb {
+      background: rgba(57, 255, 20, 0.45);
+      border-radius: 999px;
+    }
+
+    .side-panel {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      border-radius: 24px;
+      padding: clamp(18px, 2vw, 32px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 22px;
+      min-height: 0;
+      position: sticky;
+      top: 0;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .options.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    .btn {
+      border: 2px solid rgba(57, 255, 20, 0.6);
+      background: rgba(57, 255, 20, 0.1);
+      color: var(--green);
+      border-radius: 20px;
+      padding: clamp(18px, 2vw, 28px);
+      font-size: clamp(24px, 2.6vw, 54px);
+      font-weight: 900;
+      cursor: pointer;
+      text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+      box-shadow: 0 0 24px rgba(57, 255, 20, 0.13);
+      transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      background: rgba(57, 255, 20, 0.22);
+      box-shadow: 0 0 34px rgba(57, 255, 20, 0.28);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .btn.primary {
+      background: var(--green);
+      color: #001b06;
+      border-color: var(--green);
+      text-shadow: none;
+      box-shadow: 0 0 32px rgba(57, 255, 20, 0.5);
+    }
+
+    .input {
+      width: 100%;
+      background: #010604;
+      border: 2px solid rgba(57, 255, 20, 0.55);
+      color: var(--green);
+      border-radius: 18px;
+      padding: 20px 22px;
+      font-size: clamp(26px, 2.5vw, 52px);
+      outline: none;
+      box-shadow: inset 0 0 22px rgba(57, 255, 20, 0.08);
+    }
+
+    .input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 26px rgba(57, 255, 20, 0.25), inset 0 0 22px rgba(57, 255, 20, 0.08);
+    }
+
+    .feedback {
+      border-radius: 22px;
+      padding: clamp(16px, 1.8vw, 28px);
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      font-size: clamp(18px, 1.55vw, 28px);
+      line-height: 1.35;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback .result {
+      font-size: clamp(28px, 3vw, 62px);
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .feedback.correct .result {
+      color: var(--green);
+      text-shadow: 0 0 16px rgba(57, 255, 20, 0.5);
+    }
+
+    .feedback.wrong .result {
+      color: var(--red);
+      text-shadow: 0 0 16px rgba(255, 59, 59, 0.35);
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: clamp(13px, 1vw, 18px);
+      padding: 0 8px;
+    }
+
+    .progress {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .dot {
+      width: clamp(18px, 1.6vw, 30px);
+      height: clamp(18px, 1.6vw, 30px);
+      border-radius: 50%;
+      border: 2px solid rgba(57, 255, 20, 0.45);
+      background: rgba(57, 255, 20, 0.08);
+      box-shadow: 0 0 10px rgba(57, 255, 20, 0.12);
+    }
+
+    .dot.active,
+    .dot.done {
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(57, 255, 20, 0.6);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .final {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .final h1 {
+      margin: 0;
+      color: var(--green);
+      font-size: clamp(48px, 7vw, 128px);
+      text-shadow: 0 0 28px rgba(57, 255, 20, 0.65);
+    }
+
+    .final p {
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(22px, 2.2vw, 44px);
+      max-width: 1100px;
+      line-height: 1.35;
+    }
+
+    .score-big {
+      color: var(--yellow);
+      font-size: clamp(36px, 4vw, 88px);
+      font-weight: 900;
+      text-shadow: 0 0 18px rgba(255, 216, 77, 0.35);
+    }
+
+    @media (max-width: 1100px) {
+      .level-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .options,
+      .options.two {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        position: relative;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="title">Hackea el sistema</div>
+        <div class="subtitle">Reto exprés de programación · UDIT FP</div>
+      </div>
+      <div class="status">
+        <div class="pill" id="levelPill">NIVEL 1/3</div>
+        <div class="pill" id="scorePill">ACIERTOS: 0</div>
+        <div class="pill" id="solvedPill">ROOTS HOY: 0</div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="screen" id="screen"></section>
+    </main>
+
+    <footer class="footer">
+      <div class="progress">
+        <span class="dot active" id="dot1"></span>
+        <span class="dot" id="dot2"></span>
+        <span class="dot" id="dot3"></span>
+      </div>
+      <div>Lee el código · Detecta la lógica · Consigue acceso ROOT · Manuel Valencia</div>
+    </footer>
+  </div>
+
+  <script>
+    const state = {
+      level: 1,
+      score: 0,
+      solvedToday: Number(localStorage.getItem("rootsToday") || 0),
+      current: null,
+      locked: false
+    };
+
+    const screen = document.getElementById("screen");
+    const levelPill = document.getElementById("levelPill");
+    const scorePill = document.getElementById("scorePill");
+    const solvedPill = document.getElementById("solvedPill");
+
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const sample = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function uniqueOptions(values, correct) {
+      const set = new Set(values.map(String));
+      while (set.size < 3) {
+        set.add(String(correct + rand(-8, 8) || correct + 3));
+      }
+      return shuffle([...set].slice(0, 3));
+    }
+
+    function updateHud() {
+      levelPill.textContent = state.level <= 3 ? `NIVEL ${state.level}/3` : "RETO COMPLETADO";
+      scorePill.textContent = `ACIERTOS: ${state.score}`;
+      solvedPill.textContent = `ROOTS HOY: ${state.solvedToday}`;
+
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`dot${i}`);
+        dot.classList.toggle("active", i === state.level);
+        dot.classList.toggle("done", i < state.level);
+      }
+    }
+
+    function generateLevel1() {
+      const patterns = ["parenSumMul", "sumMul", "mulPlusParen"];
+      const pattern = sample(patterns);
+      let a = rand(2, 8), b = rand(2, 8), c = rand(2, 6);
+      let expression, correct, explanation, wrong1, wrong2;
+
+      if (pattern === "parenSumMul") {
+        expression = `(${a} + ${b}) * ${c}`;
+        correct = (a + b) * c;
+        wrong1 = a + b * c;
+        wrong2 = a * b + c;
+        explanation = `Primero se resuelve el paréntesis: ${a} + ${b} = ${a + b}. Después se multiplica: ${a + b} × ${c} = ${correct}.`;
+      } else if (pattern === "sumMul") {
+        expression = `${a} + ${b} * ${c}`;
+        correct = a + b * c;
+        wrong1 = (a + b) * c;
+        wrong2 = a * b + c;
+        explanation = `Primero se resuelve la multiplicación: ${b} × ${c} = ${b * c}. Después se suma ${a}: ${a} + ${b * c} = ${correct}.`;
+      } else {
+        expression = `${a} * (${b} + ${c})`;
+        correct = a * (b + c);
+        wrong1 = a * b + c;
+        wrong2 = (a + b) * c;
+        explanation = `Primero se resuelve el paréntesis: ${b} + ${c} = ${b + c}. Después se multiplica: ${a} × ${b + c} = ${correct}.`;
+      }
+
+      return {
+        expression,
+        correct: String(correct),
+        options: uniqueOptions([correct, wrong1, wrong2], correct),
+        explanation
+      };
+    }
+
+    function generateLevel2() {
+      const templates = [
+        () => {
+          const user = sample(["guest", "admin", "operator"]);
+          let acceso = true;
+          if (user !== "admin") acceso = false;
+          return {
+            code: `user = "${user}"\nacceso = True\n\nif user != "admin":\n    acceso = False\n\nprint(acceso)`,
+            correct: acceso ? "Sí" : "No",
+            explanation: user !== "admin"
+              ? `El usuario es "${user}", por tanto user != "admin" es verdadero. Al cumplirse la condición, el programa cambia acceso a False. Por eso no se concede el acceso.`
+              : `El usuario es "admin", por tanto user != "admin" es falso. La condición no cambia el valor inicial y acceso sigue siendo True.`
+          };
+        },
+        () => {
+          const user = sample(["guest", "admin", "operator"]);
+          const role = sample(["user", "admin", "viewer"]);
+          const acceso = user === "admin" || role === "admin";
+          return {
+            code: `user = "${user}"\nrole = "${role}"\n\nif user == "admin" or role == "admin":\n    acceso = True\nelse:\n    acceso = False\n\nprint(acceso)`,
+            correct: acceso ? "Sí" : "No",
+            explanation: acceso
+              ? `El acceso se concede porque basta con que una de las dos condiciones sea verdadera. Aquí user == "admin" o role == "admin" se cumple.`
+              : `El acceso no se concede porque ninguna condición es verdadera: el usuario no es "admin" y el rol tampoco es "admin".`
+          };
+        },
+        () => {
+          const user = sample(["guest", "admin"]);
+          const bloqueado = sample([true, false]);
+          const acceso = user === "admin" && !bloqueado;
+          return {
+            code: `user = "${user}"\nbloqueado = ${bloqueado ? "True" : "False"}\n\nif user == "admin" and not bloqueado:\n    acceso = True\nelse:\n    acceso = False\n\nprint(acceso)`,
+            correct: acceso ? "Sí" : "No",
+            explanation: acceso
+              ? `El usuario es "admin" y bloqueado es False. Como not bloqueado es verdadero, se cumplen las dos condiciones del and.`
+              : `Para entrar deben cumplirse las dos condiciones: ser "admin" y no estar bloqueado. En este caso al menos una de ellas falla.`
+          };
+        }
+      ];
+
+      const selected = sample(templates)();
+      selected.options = ["Sí", "No"];
+      return selected;
+    }
+
+    const level3Code = `usuarios = {
+    "admin": {
+        "rol": "bloqueado",
+        "nivel": 9,
+        "token": False,
+        "activo": True
+    },
+    "root": {
+        "rol": "invitado",
+        "nivel": 10,
+        "token": False,
+        "activo": True
+    },
+    "neo": {
+        "rol": "usuario",
+        "nivel": 4,
+        "token": True,
+        "activo": True
+    },
+    "trinity": {
+        "rol": "analista",
+        "nivel": 7,
+        "token": True,
+        "activo": True
+    },
+    "morpheus": {
+        "rol": "admin",
+        "nivel": 8,
+        "token": False,
+        "activo": True
+    },
+    "guest": {
+        "rol": "invitado",
+        "nivel": 1,
+        "token": False,
+        "activo": True
+    }
+}
+
+usuario = input("Introduce usuario: ")
+
+acceso = False
+
+if usuario in usuarios:
+    datos = usuarios[usuario]
+
+    if datos["activo"] == True:
+
+        if datos["rol"] == "admin":
+            acceso = True
+
+        if datos["nivel"] < 9:
+            acceso = False
+
+        if datos["token"] == True and datos["nivel"] >= 7:
+            acceso = True
+
+        if usuario == "admin" or datos["rol"] == "bloqueado":
+            acceso = False
+
+else:
+    acceso = False
+
+print(acceso)`;
+
+    function renderLevel1() {
+      state.current = generateLevel1();
+      state.locked = false;
+      updateHud();
+      screen.innerHTML = `
+        <div class="level-layout">
+          <div class="challenge">
+            <h1>Nivel 1 · Código de acceso</h1>
+            <p>Calcula la clave respetando el orden de operaciones.</p>
+            <div class="terminal">&gt; Calculando hash de acceso...\n\nclave = ${state.current.expression}</div>
+          </div>
+          <aside class="side-panel">
+            <p>Selecciona la contraseña correcta:</p>
+            <div class="options">
+              ${state.current.options.map(opt => `<button class="btn" onclick="answerLevel1('${opt}')">${opt}</button>`).join("")}
+            </div>
+            <div class="feedback" id="feedback"></div>
+          </aside>
+        </div>
+      `;
+    }
+
+    function renderLevel2() {
+      state.current = generateLevel2();
+      state.locked = false;
+      updateHud();
+      screen.innerHTML = `
+        <div class="level-layout">
+          <div class="challenge">
+            <h1>Nivel 2 · Acceso lógico</h1>
+            <p>Lee el código. No respondas por intuición: sigue el flujo de ejecución.</p>
+            <div class="terminal code">${state.current.code}</div>
+          </div>
+          <aside class="side-panel">
+            <p>¿Acceso concedido?</p>
+            <div class="options two">
+              ${state.current.options.map(opt => `<button class="btn" onclick="answerLevel2('${opt}')">${opt}</button>`).join("")}
+            </div>
+            <div class="feedback" id="feedback"></div>
+          </aside>
+        </div>
+      `;
+    }
+
+    function renderLevel3() {
+      state.locked = false;
+      updateHud();
+      screen.innerHTML = `
+        <div class="level-layout">
+          <div class="challenge" style="justify-content: stretch;">
+            <h1>Nivel 3 · Auditoría de acceso</h1>
+            <p>Encuentra el usuario que consigue que el sistema imprima True.</p>
+            <div class="terminal code-scroll"><pre class="code">${level3Code}</pre></div>
+          </div>
+          <aside class="side-panel">
+            <div class="terminal" style="font-size: clamp(20px, 1.8vw, 34px);">&gt; Terminal de acceso\n&gt; Introduce usuario:</div>
+            <input id="userInput" class="input" type="text" autocomplete="off" placeholder="usuario" onkeydown="if(event.key==='Enter') answerLevel3()" />
+            <button class="btn primary" onclick="answerLevel3()">ACCEDER</button>
+            <div class="feedback" id="feedback"></div>
+          </aside>
+        </div>
+      `;
+      setTimeout(() => document.getElementById("userInput").focus(), 100);
+    }
+
+    function showFeedback(correct, text, nextLabel = "Siguiente nivel") {
+      const fb = document.getElementById("feedback");
+      fb.className = `feedback show ${correct ? "correct" : "wrong"}`;
+      fb.innerHTML = `
+        <div class="result">${correct ? "✔ Correcto" : "✖ Incorrecto"}</div>
+        <div>${text}</div>
+        <button class="btn primary" style="margin-top:18px; width:100%; font-size:clamp(20px, 1.8vw, 34px);" onclick="nextStep()">${nextLabel}</button>
+      `;
+    }
+
+    function answerLevel1(value) {
+      if (state.locked) return;
+      state.locked = true;
+      const correct = value === state.current.correct;
+      if (correct) state.score++;
+      showFeedback(
+        correct,
+        `${correct ? "" : `La respuesta correcta era ${state.current.correct}. `}${state.current.explanation}`
+      );
+      updateHud();
+    }
+
+    function answerLevel2(value) {
+      if (state.locked) return;
+      state.locked = true;
+      const correct = value === state.current.correct;
+      if (correct) state.score++;
+      showFeedback(
+        correct,
+        `${correct ? "" : `La respuesta correcta era ${state.current.correct}. `}${state.current.explanation}`
+      );
+      updateHud();
+    }
+
+    function answerLevel3() {
+      if (state.locked) return;
+      const input = document.getElementById("userInput");
+      const value = input.value.trim().toLowerCase();
+      if (!value) return;
+      state.locked = true;
+
+      const correct = value === "trinity";
+      if (correct) state.score++;
+
+      const explanation = correct
+        ? `trinity es el usuario que termina con acceso = True. Está activo, tiene token = True y nivel = 7. Aunque primero el acceso pasa a False porque nivel < 9, después vuelve a True porque cumple token == True and nivel >= 7. Además, no se llama admin y su rol no está bloqueado.`
+        : `Ese usuario no termina con acceso = True. La solución correcta es trinity: está activo, tiene token = True y nivel = 7, por lo que supera la condición token == True and nivel >= 7 sin quedar bloqueado por las reglas finales.`;
+
+      showFeedback(correct, explanation, "Ver resultado");
+      updateHud();
+    }
+
+    function nextStep() {
+      state.level++;
+      if (state.level === 2) renderLevel2();
+      else if (state.level === 3) renderLevel3();
+      else renderFinal();
+    }
+
+    function renderFinal() {
+      updateHud();
+      const perfect = state.score === 3;
+      if (perfect) {
+        state.solvedToday++;
+        localStorage.setItem("rootsToday", String(state.solvedToday));
+      }
+      updateHud();
+      screen.innerHTML = `
+        <div class="final">
+          <h1>${perfect ? "ACCESO ROOT CONCEDIDO" : "ACCESO PARCIAL"}</h1>
+          <div class="score-big">${state.score}/3</div>
+          <p>${perfect
+            ? "Has superado el reto de programación FP: operaciones, lógica condicional y auditoría de código."
+            : "Has llegado al final del sistema. Vuelve a intentarlo y consigue acceso ROOT."}</p>
+          <button class="btn primary" onclick="restart()">NUEVO RETO</button>
+        </div>
+      `;
+    }
+
+    function restart() {
+      state.level = 1;
+      state.score = 0;
+      state.current = null;
+      state.locked = false;
+      renderLevel1();
+    }
+
+    window.answerLevel1 = answerLevel1;
+    window.answerLevel2 = answerLevel2;
+    window.answerLevel3 = answerLevel3;
+    window.nextStep = nextStep;
+    window.restart = restart;
+
+    renderLevel1();
+  </script>
+</body>
+</html>
