@@ -246,6 +246,32 @@
       position: sticky;
       top: 0;
     }
+.side-panel-vertical {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 12px;
+  justify-content: stretch;
+}
+.side-panel-vertical .terminal {
+  padding: 18px 22px;
+  font-size: clamp(18px, 1.35vw, 28px) !important;
+  line-height: 1.35;
+}
+.side-panel-vertical .input {
+  padding: 12px 16px;
+  font-size: clamp(22px, 1.9vw, 38px);
+}
+.side-panel-vertical .btn.primary {
+  padding: 12px 16px;
+  font-size: clamp(18px, 1.5vw, 30px);
+  min-height: 76px;
+}
+.side-panel-vertical .feedback {
+  margin-top: 4px;
+  min-height: 210px;
+  max-height: none;
+  overflow-y: auto;
+}
 
     .options {
       display: grid;
@@ -321,7 +347,13 @@
   overflow-y: auto;
   flex-grow: 1;
 }
-
+.feedback-next {
+  margin-top: 14px;
+  width: 100%;
+  padding: 10px 14px !important;
+  font-size: clamp(16px, 1.3vw, 24px) !important;
+  min-height: 58px !important;
+}
 .feedback::-webkit-scrollbar {
   width: 10px;
 }
@@ -774,7 +806,7 @@ print(acceso)`;
       fb.innerHTML = `
         <div class="result">${correct ? "✔ Correcto" : "✖ Incorrecto"}</div>
         <div>${text}</div>
-        <button class="btn primary" style="margin-top:18px; width:100%; font-size:clamp(20px, 1.8vw, 34px);" onclick="nextStep()">${nextLabel}</button>
+        <button class="btn primary feedback-next" onclick="nextStep()">${nextLabel}</button>
       `;
     }
 
